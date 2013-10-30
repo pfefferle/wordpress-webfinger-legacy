@@ -1,0 +1,2 @@
+wordpress-webfinger-legacy
+==========================
