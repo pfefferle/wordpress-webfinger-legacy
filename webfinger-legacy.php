@@ -27,6 +27,9 @@ class WebfingerLegacyPlugin {
 		add_action( 'query_vars', array( 'WebfingerLegacyPlugin', 'query_vars' ) );
 		add_filter( 'host_meta', array( 'WebfingerLegacyPlugin', 'host_meta_discovery' ) );
 
+		// host-meta recource
+		add_action( 'host_meta_render', array( 'WebfingerLegacyPlugin', 'render_host_meta' ), -1, 3 );
+
 		// XRD output
 		add_action( 'webfinger_render', array( 'WebfingerLegacyPlugin', 'render_xrd' ), 5 );
 	}
@@ -78,10 +81,7 @@ class WebfingerLegacyPlugin {
 		header( 'Content-Type: application/xrd+xml; charset=' . get_bloginfo( 'charset' ), true );
 
 		echo '<?xml version="1.0" encoding="' . get_bloginfo( 'charset' ) . '"?>' . PHP_EOL;
-		echo '<XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0"';
-			// add xml-only namespaces
-			do_action( 'webfinger_ns' );
-		echo '>' . PHP_EOL;
+		echo '<XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0"' . do_action( 'webfinger_ns' ) . '>' . PHP_EOL;
 
 		echo self::jrd_to_xrd( $webfinger );
 		// add xml-only content
@@ -89,6 +89,38 @@ class WebfingerLegacyPlugin {
 
 		echo PHP_EOL . '</XRD>';
 
+		exit;
+	}
+
+	/*
+	 * host-meta resource feature
+	 *
+	 * @param array $query
+	 */
+	public function render_host_meta( $format, $host_meta, $query ) {
+		if ( ! array_key_exists( 'resource' , $query ) ) {
+			return;
+		}
+
+		global $wp;
+
+		// filter WebFinger array
+		$webfinger = apply_filters( 'webfinger_data', array(), $query['resource'] );
+
+		// check if "user" exists
+		if ( empty( $webfinger ) ) {
+			status_header( 404 );
+			header( 'Content-Type: text/plain; charset=' . get_bloginfo( 'charset' ), true );
+			echo 'no data for resource "' . $query['resource'] . '" found';
+			exit;
+		}
+
+		if ( 'xrd' === $format ) {
+			$wp->query_vars['format'] = 'xrd';
+		}
+
+		do_action( 'webfinger_render', $webfinger );
+		// stop exactly here!
 		exit;
 	}
 
@@ -121,7 +153,7 @@ class WebfingerLegacyPlugin {
 			// print aliases
 			if ( 'aliases' == $type ) {
 				foreach ( $content as $uri ) {
-					$xrd .= '<Alias>' . htmlentities( $uri ) . '</Alias>';
+					$xrd .= '<Alias>' . wp_specialchars( $uri ) . '</Alias>';
 				}
 				continue;
 			}
@@ -129,7 +161,7 @@ class WebfingerLegacyPlugin {
 			// print properties
 			if ( 'properties' == $type ) {
 				foreach ( $content as $type => $uri ) {
-					$xrd .= '<Property type="' . htmlentities( $type ) . '">' . htmlentities( $uri ) . '</Property>';
+					$xrd .= '<Property type="' . wp_specialchars( $type ) . '">' . wp_specialchars( $uri ) . '</Property>';
 				}
 				continue;
 			}
@@ -138,9 +170,9 @@ class WebfingerLegacyPlugin {
 			if ( 'titles' == $type ) {
 				foreach ( $content as $key => $value ) {
 					if ( 'default' == $key ) {
-						$xrd .= '<Title>' . htmlentities( $value ) . '</Title>';
+						$xrd .= '<Title>' . wp_specialchars( $value ) . '</Title>';
 					} else {
-						$xrd .= '<Title xml:lang="' . htmlentities( $key ) . '">' . htmlentities( $value ) . '</Title>';
+						$xrd .= '<Title xml:lang="' . wp_specialchars( $key ) . '">' . wp_specialchars( $value ) . '</Title>';
 					}
 				}
 				continue;
@@ -158,7 +190,7 @@ class WebfingerLegacyPlugin {
 							$temp[ $key ] = $value;
 							$cascaded = true;
 						} else {
-							$xrd .= htmlentities( $key ) . '="' . htmlentities( $value ) . '" ';
+							$xrd .= wp_specialchars( $key ) . '="' . wp_specialchars( $value ) . '" ';
 						}
 					}
 					if ( $cascaded ) {
