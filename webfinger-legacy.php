@@ -127,7 +127,7 @@ class WebfingerLegacyPlugin {
 	/**
 	 * add the host meta information
 	 */
-	public static function host_meta_discovery($array) {
+	public static function host_meta_discovery( $array ) {
 		$array['links'][] = array( 'rel' => 'lrdd', 'template' => site_url( '/?well-known=webfinger&resource={uri}&format=xrd' ), 'type' => 'application/xrd+xml' );
 
 		return $array;
