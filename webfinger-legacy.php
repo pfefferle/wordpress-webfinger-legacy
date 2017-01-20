@@ -3,35 +3,35 @@
  * Plugin Name: WebFinger Legacy
  * Plugin URI: https://github.com/pfefferle/wordpress-webfinger-legacy
  * Description: WebFinger Legacy plugin for WordPress
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: pfefferle
  * Author URI: http://notizblog.org/
- * License: GPLv2 or later
- * License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ * License: MIT
+ * License URI: https://opensource.org/licenses/MIT
  */
 
 // initialize plugin
-add_action( 'init', array( 'WebfingerLegacyPlugin', 'init' ) );
+add_action( 'init', array( 'WebFingerLegacy_Plugin', 'init' ) );
 
 /**
- * webfinger-legacy
+ * WebFinger Legacy
  *
  * @author Matthias Pfefferle
  */
-class WebfingerLegacyPlugin {
+class WebFingerLegacy_Plugin {
 
 	/**
 	 * Initialize the plugin, registering WordPress hooks.
 	 */
 	public static function init() {
-		add_action( 'query_vars', array( 'WebfingerLegacyPlugin', 'query_vars' ) );
-		add_filter( 'host_meta', array( 'WebfingerLegacyPlugin', 'host_meta_discovery' ) );
+		add_action( 'query_vars', array( 'WebFingerLegacy_Plugin', 'query_vars' ) );
+		add_filter( 'host_meta', array( 'WebFingerLegacy_Plugin', 'host_meta_discovery' ) );
 
 		// host-meta recource
-		add_action( 'host_meta_render', array( 'WebfingerLegacyPlugin', 'render_host_meta' ), -1, 3 );
+		add_action( 'host_meta_render', array( 'WebFingerLegacy_Plugin', 'render_host_meta' ), -1, 3 );
 
 		// XRD output
-		add_action( 'webfinger_render', array( 'WebfingerLegacyPlugin', 'render_xrd' ), 5 );
+		add_action( 'webfinger_render', array( 'WebFingerLegacy_Plugin', 'render_xrd' ), 5 );
 	}
 
 	/**
@@ -72,9 +72,11 @@ class WebfingerLegacyPlugin {
 			$format = $wp->query_vars['format'];
 		}
 
-		if ( ! in_array( 'application/xrd+xml', $accept ) &&
-				! in_array( 'application/xml+xrd', $accept ) &&
-				'xrd' != $format ) {
+		if (
+			! in_array( 'application/xrd+xml', $accept ) &&
+			! in_array( 'application/xml+xrd', $accept ) &&
+			'xrd' != $format
+		) {
 			return $webfinger;
 		}
 

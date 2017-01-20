@@ -2,7 +2,7 @@
   "name": "pfefferle/wordpress-webfinger-legacy",
   "description": "WebFinger legacy support.",
   "type": "wordpress-plugin",
-  "license": "GPL-2.0",
+  "license": "MIT",
   "authors": [
     {
       "name": "Matthias Pfefferle",
