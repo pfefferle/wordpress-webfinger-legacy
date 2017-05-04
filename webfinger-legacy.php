@@ -131,6 +131,8 @@ class WebFingerLegacy_Plugin {
 	 */
 	public static function host_meta_discovery( $array ) {
 		$array['links'][] = array( 'rel' => 'lrdd', 'template' => site_url( '/?well-known=webfinger&resource={uri}&format=xrd' ), 'type' => 'application/xrd+xml' );
+		$array['links'][] = array( 'rel' => 'lrdd', 'template' => site_url( '/?well-known=webfinger&resource={uri}' ), 'type' => 'application/jrd+xml' );
+		$array['links'][] = array( 'rel' => 'lrdd', 'template' => site_url( '/?well-known=webfinger&resource={uri}' ), 'type' => 'application/json' );
 
 		return $array;
 	}
